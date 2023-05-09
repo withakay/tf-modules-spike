@@ -5,12 +5,15 @@ on:
       - "main"    
     paths:
       - "**/*.txt"
+
 jobs:
   check:
     name: Check changes are in one module
     outputs:
       run_job: ${{ steps.check_files.outputs.run_job }}
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -19,7 +22,7 @@ jobs:
       - name: check modified files
         id: check_files
         run: |
-          pr_number=${{github.event.number}}
+          pr_number=${{ github.event.number }}
           changed_files=$(gh pr diff --name-only $pr_number)
           top_level_dir=$(dirname "$(realpath "$changed_files" | head -n1)")
           while IFS= read -r path; do
