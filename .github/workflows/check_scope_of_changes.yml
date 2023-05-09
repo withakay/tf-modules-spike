@@ -1,0 +1,33 @@
+name: check-change-scope
+on:
+  pull_request:
+    branches:
+      - "main"    
+    paths:
+      - "**/*.txt"
+jobs:
+  check:
+    name: Check changes are in one module
+    outputs:
+      run_job: ${{ steps.check_files.outputs.run_job }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: check modified files
+        id: check_files
+        run: |
+          pr_number=${{github.event.number}}
+          changed_files=$(gh pr diff --name-only $pr_number)
+          top_level_dir=$(dirname "$(realpath "$changed_files" | head -n1)")
+          while IFS= read -r path; do
+            current_dir=$(dirname "$(realpath "$path")")
+            if [[ "$current_dir" != "$top_level_dir" ]]; then
+              echo "Error: Paths are not in the same top-level directory"
+              exit 1
+            fi
+          done <<< "$changed_files"
+          echo "All paths are in the same top-level directory"
+          exit 0
