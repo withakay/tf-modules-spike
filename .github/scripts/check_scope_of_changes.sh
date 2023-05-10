@@ -62,7 +62,16 @@ else
     changed_files=$(gh pr diff --name-only "$pr_number")
 fi
 
-top_level_dir=$(get_top_level_directory "$(dirname "$(echo "$changed_files" | head -n1)")")
+while [[ -z "$top_level_dir" && -n "$changed_files" ]]; do
+    top_level_dir=$(get_top_level_directory "$(dirname "$(echo "$changed_files" | head -n1)")")
+    changed_files=$(echo "$changed_files" | tail -n +2)
+done
+
+if [[ -z "$top_level_dir" ]]; then
+    echo "No changed files found"
+    exit 0
+fi
+
 echo "Top-level directory: $top_level_dir"
 
 while IFS= read -r path; do
