@@ -73,7 +73,7 @@ while IFS= read -r path; do
     current_dir=$(get_top_level_directory "$(dirname "$path")")
     echo "Current directory: $current_dir"
 
-    if [[ "$current_dir" != "$top_level_dir" && "$current_dir" != "." ]]; then
+    if [[ "$current_dir" != "$top_level_dir" && "$current_dir" != "." && "$current_dir" != "" ]]; then
         echo "Error: Paths are not in the same top-level directory"
         echo "current_dir: $current_dir"
         exit 1
