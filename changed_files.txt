@@ -1,0 +1,4 @@
+foo/a.txt
+foo/b.txt
+foo/baz/c.txt
+README.md

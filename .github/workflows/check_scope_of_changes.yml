@@ -19,18 +19,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: check modified files
+      - name: check modified files are in one module
         id: check_files
-        run: |
-          pr_number=${{ github.event.number }}
-          changed_files=$(gh pr diff --name-only $pr_number)
-          top_level_dir=$(dirname "$(realpath "$changed_files" | head -n1)")
-          while IFS= read -r path; do
-            current_dir=$(dirname "$(realpath "$path")")
-            if [[ "$current_dir" != "$top_level_dir" ]]; then
-              echo "Error: Paths are not in the same top-level directory"
-              exit 1
-            fi
-          done <<< "$changed_files"
-          echo "All paths are in the same top-level directory"
-          exit 0
+        run: ./.github/scripts/check_scope_of_changes.sh --pr_number ${{ github.event.number }}
+        shell: bash
