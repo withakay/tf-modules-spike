@@ -1,0 +1,37 @@
+# An reusable workflow to run pre-commit on a repo
+# https://pre-commit.com/#pre-commit-run
+#
+# Note:
+#   There is official pre-commit action, but it has been put into maintenance mode.
+#   As the action is so simple it was decided to recreate it
+name: pre-commit-workflow
+
+on:
+  workflow_call:
+    inputs:
+      extra_args:
+        description: options to pass to pre-commit run
+        required: false
+        default: '--all-files'
+        type: string
+
+jobs:
+  pre-commit:
+    name: pre-commit
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/setup-python@v4
+      id: setup-python
+      with:
+        python-version: 3.10
+        cache: pip
+    - run: pip install pre-commit
+      shell: bash
+    - run: pip freeze --local
+      shell: bash
+    - uses: actions/cache@v3
+      with:
+        path: ~/.cache/pre-commit
+        key: pre-commit-3|${{ steps.setup-python.outputs.python-path }}|${{ hashFiles('.pre-commit-config.yaml') }}
+    - run: pre-commit run --show-diff-on-failure --color=always ${{ inputs.extra_args }}
+      shell: bash
