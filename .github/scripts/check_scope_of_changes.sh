@@ -16,6 +16,7 @@ display_help() {
     echo "Options:"
     echo "  --filelist <file>   Specify a file containing the list of changed files"
     echo "  --pr_number <number> Specify the pull request number to retrieve changed files"
+    echo "  --verbose           Enable verbose mode"
     echo "  --help              Display this help message"
     echo ""
     echo "Example usage:"
@@ -25,6 +26,13 @@ display_help() {
     exit 0
 }
 
+log() {
+    if [ "$verbose" ]; then
+        echo "$1"
+    fi
+}
+
+verbose=false
 filelist_path=""
 
 # Process command line arguments
@@ -37,6 +45,10 @@ while [[ $# -gt 0 ]]; do
         --pr_number)
             pr_number="$2"
             shift 2
+            ;;
+        --verbose)
+            verbose=true
+            shift
             ;;
         --help)
             display_help
@@ -68,23 +80,23 @@ while [[ -z "$top_level_dir" && -n "$changed_files" ]]; do
 done
 
 if [[ -z "$top_level_dir" ]]; then
-    echo "No changed files found"
+    log "No changed files found"
     exit 0
 fi
 
-echo "Top-level directory: $top_level_dir"
+log "Top-level directory: $top_level_dir"
 
 while IFS= read -r path; do
-    echo "Checking path: $path"
-    echo "Path: $path"
-    echo "Directory of path: $(dirname "$path")"
+    log "Checking path: $path"
+    log "Path: $path"
+    log "Directory of path: $(dirname "$path")"
 
     current_dir=$(get_top_level_directory "$(dirname "$path")")
-    echo "Current directory: $current_dir"
+    log "Current directory: $current_dir"
 
     if [[ "$current_dir" != "$top_level_dir" && "$current_dir" != "." && "$current_dir" != "" ]]; then
         echo "Error: Paths are not in the same top-level directory"
-        echo "current_dir: $current_dir"
+        log "current_dir: $current_dir"
         exit 1
     fi
 done <<< "$changed_files"

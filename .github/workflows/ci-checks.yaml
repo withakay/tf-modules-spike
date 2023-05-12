@@ -2,7 +2,7 @@ name: check-change-scope
 on:
   pull_request:
     branches:
-      - "main"    
+      - "main"
     paths:
       - "**/*.txt"
 
@@ -23,3 +23,5 @@ jobs:
         id: check_files
         run: ./.github/scripts/check_scope_of_changes.sh --pr_number ${{ github.event.number }}
         shell: bash
+  call-pre-commit-workflow:
+    uses: ./.github/workflows/pre-commit.yaml
